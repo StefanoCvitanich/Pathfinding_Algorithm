@@ -19,7 +19,11 @@ public class Node : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-	}
+        pos.x = gameObject.transform.position.x;
+        pos.y = gameObject.transform.position.y;
+        pos.z = gameObject.transform.position.z;
+
+    }
 
 	// Update is called once per frame
 	void Update () {

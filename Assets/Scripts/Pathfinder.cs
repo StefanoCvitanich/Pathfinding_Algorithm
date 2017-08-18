@@ -2,76 +2,119 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum algorithm {
+
+    Breadth_First,
+
+    Dijkstra,
+
+    A_Star
+};
+
 public class pathfinder : MonoBehaviour {
 
-	Queue<Node> openedNodes;
+    Queue<Node> openedNodes;
 
-	List <Node> closedNodes;
+    List<Node> closedNodes;
 
-	List<Node> path;
+    List<Node> path;
 
-	Node targetNode;
+    List<Node> nodeList;
 
-	Node startNode;
+    GameObject[] nodes;
 
-	Node currentNode;
+    public Node targetNode;
 
-	// Use this for initialization
-	void Start () {
+    public Node startNode;
 
-	}
+    public Node currentNode;
 
-	// Update is called once per frame
-	void Update () {
+    // Use this for initialization
+    void Start() {
 
-	}
+        nodes = GameObject.FindGameObjectsWithTag("Node");
 
-	private List<Node> findPath()
-	{
-		openNode(startNode); //falta poner lo del padre
+    }
 
-		return path;
-	}
+    // Update is called once per frame
+    void Update() {
 
-	private void openNode(Node nodeToOpen, Node parent) {
+    }
 
-		openedNodes.Enqueue(nodeToOpen);
+    private List<Node> findPath(Node start, Node end)
+    {
+        //openNode(startNode); //falta poner lo del padre
+        openNode(start, null);
+       // openedNodes.Enqueue(nodeToOpen);
 
-		while (openedNodes.Count != 0)
-		{
-			currentNode = visitNode();
+        while (openedNodes.Count != 0)
+        {
+            currentNode = visitNode();
 
-			currentNode.GetComponent<Node>().alreadyVisited = true;
+            currentNode.GetComponent<Node>().alreadyVisited = true;
 
-			if (isTargetNode(nodeToOpen))
-				return; //No entendi como es el return
+            if (isTargetNode(nodeToOpen))
+                return; //No entendi como es el return
 
-			closedNodes.Add(currentNode);
+            closedNodes.Add(currentNode);
 
-			openNeighbours(currentNode);
-		}
-	}
+            openNeighbours(currentNode);
+        }
 
-	private Node visitNode()
-	{
-		return openedNodes.Dequeue();
-	}
+        return path;
+    }
 
-	private void openNeighbours(Node nodeToOpenNeighbours){
+    private void openNode(Node nodeToOpen, Node parent) {
 
 
+        nodeToOpen.parent = parent;
+        openedNodes.Enqueue(nodeToOpen);
 
-	}
 
-	private bool isTargetNode(Node nodeToCheck) {
+    }
 
-		if (nodeToCheck == targetNode)
-			return true;
-		
-		else
-			return false;
-	}
+    private Node visitNode()
+    {
+        return openedNodes.Dequeue();
+    }
 
+    private void openNeighbours(Node nodeToOpenNeighbours) {
+
+        for (int i = 0; i < currentNode.neighboursList.Count; i++) {
+            openNode(currentNode.neighboursList[i], nodeToOpenNeighbours);
+            //openedNodes.Enqueue(currentNode.neighboursList[i]);
+        }
+
+    }
+
+    private bool isTargetNode(Node nodeToCheck) {
+
+        if (nodeToCheck == targetNode)
+            return true;
+
+        else
+            return false;
+    }
+
+    private void fillNodeList() {
+
+        for (int i = 0; i < nodes.Length; i++)
+            nodeList.Add(nodes[i].GetComponent<Node>());
+
+    }
+
+    private void findNeighbours() {
+
+        for (int i = 0; i < nodeList.Count; i++) {
+
+            for (int j = 0; j < nodeList.Count; j++) {
+
+                if (Vector3.Distance(nodeList[i].pos, nodeList[j].pos) <= 1)
+                    nodeList[i].neighboursList.Add(nodeList[j]);
+            }
+        }
+    }
+    /*
 	private void gridGenerator(int rows, int columns) {
 	
 		GameObject[][] grid = new GameObject [rows][];
@@ -83,4 +126,10 @@ public class pathfinder : MonoBehaviour {
 		}
 	
 	}
+
+    private void createNodesInGrid() {
+
+        
+    }
+    */
 }
