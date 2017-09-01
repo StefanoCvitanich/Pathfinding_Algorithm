@@ -11,41 +11,57 @@ public enum algorithm {
     A_Star
 };
 
-public class pathfinder : MonoBehaviour {
+public class Pathfinder : MonoBehaviour
+{
 
-    Queue<Node> openedNodes;
+    Queue<Node> openedNodes = new Queue<Node>();
 
-    List<Node> closedNodes;
+    List<Node> closedNodes = new List<Node>();
 
-    List<Node> path;
+    List<Node> path = new List<Node>();
 
-    List<Node> nodeList;
+    List<Node> nodeList = new List<Node>();
 
     GameObject[] nodes;
 
-    public Node targetNode;
+    Node targetNode;
 
-    public Node startNode;
+    Node startNode;
 
-    public Node currentNode;
+    Node currentNode;
 
     // Use this for initialization
-    void Start() {
+    void Start()
+    {
 
         nodes = GameObject.FindGameObjectsWithTag("Node");
+
+        foreach (GameObject go in nodes)
+        {
+            go.GetComponent<Node>().pos = go.transform.position;
+        }
+
+        startNode = GameObject.Find("startNode").GetComponent<Node>();
+
+        targetNode = GameObject.Find("targetNode").GetComponent<Node>();
+
+        fillNodeList();
+
+        findNeighbours();
+
+        findPath(startNode, targetNode);       
 
     }
 
     // Update is called once per frame
-    void Update() {
+    void Update()
+    {
 
     }
 
     private List<Node> findPath(Node start, Node end)
     {
-        //openNode(startNode); //falta poner lo del padre
         openNode(start, null);
-       // openedNodes.Enqueue(nodeToOpen);
 
         while (openedNodes.Count != 0)
         {
@@ -53,8 +69,29 @@ public class pathfinder : MonoBehaviour {
 
             currentNode.GetComponent<Node>().alreadyVisited = true;
 
-            if (isTargetNode(nodeToOpen))
-                return; //No entendi como es el return
+            if (isTargetNode(currentNode)) {
+
+                while (currentNode != null)
+                {
+                    path.Add(currentNode);
+
+                    foreach (GameObject go in nodes)
+                    {
+                        if (go.GetComponent<Node>() == currentNode)
+                            go.GetComponent<Renderer>().material.color = Color.cyan; 
+                    }
+
+                    currentNode = currentNode.parent;
+                }
+
+                for(int i = path.Count -1; i >= 0; i--)
+                {
+                    Debug.Log(path[i].name);
+                }
+
+                break;
+            }
+                
 
             closedNodes.Add(currentNode);
 
@@ -64,13 +101,10 @@ public class pathfinder : MonoBehaviour {
         return path;
     }
 
-    private void openNode(Node nodeToOpen, Node parent) {
-
-
+    private void openNode(Node nodeToOpen, Node parent)
+    {
         nodeToOpen.parent = parent;
         openedNodes.Enqueue(nodeToOpen);
-
-
     }
 
     private Node visitNode()
@@ -78,16 +112,20 @@ public class pathfinder : MonoBehaviour {
         return openedNodes.Dequeue();
     }
 
-    private void openNeighbours(Node nodeToOpenNeighbours) {
+    private void openNeighbours(Node nodeToOpenNeighbours)
+    {
+        for (int i = 0; i < nodeToOpenNeighbours.neighboursList.Count; i++)
+        {
+            if (!nodeToOpenNeighbours.neighboursList[i].alreadyVisited && !closedNodes.Contains(nodeToOpenNeighbours.neighboursList[i])) {
 
-        for (int i = 0; i < currentNode.neighboursList.Count; i++) {
-            openNode(currentNode.neighboursList[i], nodeToOpenNeighbours);
-            //openedNodes.Enqueue(currentNode.neighboursList[i]);
+                openNode(nodeToOpenNeighbours.neighboursList[i], nodeToOpenNeighbours);
+            }           
         }
 
     }
 
-    private bool isTargetNode(Node nodeToCheck) {
+    private bool isTargetNode(Node nodeToCheck)
+    {
 
         if (nodeToCheck == targetNode)
             return true;
@@ -96,40 +134,25 @@ public class pathfinder : MonoBehaviour {
             return false;
     }
 
-    private void fillNodeList() {
+    private void fillNodeList()
+    {
 
         for (int i = 0; i < nodes.Length; i++)
             nodeList.Add(nodes[i].GetComponent<Node>());
 
     }
 
-    private void findNeighbours() {
+    private void findNeighbours()
+    {
+        for (int i = 0; i < nodeList.Count; i++)
+        {
 
-        for (int i = 0; i < nodeList.Count; i++) {
+            for (int j = 0; j < nodeList.Count; j++)
+            {
 
-            for (int j = 0; j < nodeList.Count; j++) {
-
-                if (Vector3.Distance(nodeList[i].pos, nodeList[j].pos) <= 1)
+                if (Mathf.Abs(Vector3.Distance(nodeList[i].pos, nodeList[j].pos)) <= 1 && Mathf.Abs(Vector3.Distance(nodeList[i].pos, nodeList[j].pos)) > 0)
                     nodeList[i].neighboursList.Add(nodeList[j]);
             }
         }
     }
-    /*
-	private void gridGenerator(int rows, int columns) {
-	
-		GameObject[][] grid = new GameObject [rows][];
-
-		for (int i = 0; i < rows; i++) {
-		
-			grid[i] = new GameObject[columns];   //Quiero hacer que el valor de columns varie
-											//Tengo que hacer un switch de i y dependiendo del valor modifico a columns?
-		}
-	
-	}
-
-    private void createNodesInGrid() {
-
-        
-    }
-    */
 }
