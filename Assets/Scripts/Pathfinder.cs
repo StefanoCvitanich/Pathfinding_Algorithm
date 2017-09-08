@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using
 
 public enum algorithm {
 
@@ -14,7 +15,7 @@ public enum algorithm {
 public class Pathfinder : MonoBehaviour
 {
 
-    Queue<Node> openedNodes = new Queue<Node>();
+    List<Node> openedNodes = new List<Node>();
 
     List<Node> closedNodes = new List<Node>();
 
@@ -29,6 +30,8 @@ public class Pathfinder : MonoBehaviour
     Node startNode;
 
     Node currentNode;
+
+    public algorithm althm;
 
     // Use this for initialization
     void Start()
@@ -49,7 +52,7 @@ public class Pathfinder : MonoBehaviour
 
         findNeighbours();
 
-        findPath(startNode, targetNode);       
+        findPath(startNode, targetNode, althm);       
 
     }
 
@@ -59,44 +62,45 @@ public class Pathfinder : MonoBehaviour
 
     }
 
-    private List<Node> findPath(Node start, Node end)
+    private List<Node> findPath(Node start, Node end, algorithm al)
     {
         openNode(start, null);
 
-        while (openedNodes.Count != 0)
-        {
-            currentNode = visitNode();
-
-            currentNode.GetComponent<Node>().alreadyVisited = true;
-
-            if (isTargetNode(currentNode)) {
-
-                while (currentNode != null)
+                while (openedNodes.Count != 0)
                 {
-                    path.Add(currentNode);
+                    currentNode = visitNode(al);
 
-                    foreach (GameObject go in nodes)
+                    currentNode.GetComponent<Node>().alreadyVisited = true;
+
+                    if (isTargetNode(currentNode))
                     {
-                        if (go.GetComponent<Node>() == currentNode)
-                            go.GetComponent<Renderer>().material.color = Color.cyan; 
+
+                        while (currentNode != null)
+                        {
+                            path.Add(currentNode);
+
+                            foreach (GameObject go in nodes)
+                            {
+                                if (go.GetComponent<Node>() == currentNode)
+                                    go.GetComponent<Renderer>().material.color = Color.cyan;
+                            }
+
+                            currentNode = currentNode.parent;
+                        }
+
+                        for (int i = path.Count - 1; i >= 0; i--)
+                        {
+                            Debug.Log(path[i].name);
+                        }
+
+                        break;
                     }
 
-                    currentNode = currentNode.parent;
+
+                    closedNodes.Add(currentNode);
+
+                    openNeighbours(currentNode);
                 }
-
-                for(int i = path.Count -1; i >= 0; i--)
-                {
-                    Debug.Log(path[i].name);
-                }
-
-                break;
-            }
-                
-
-            closedNodes.Add(currentNode);
-
-            openNeighbours(currentNode);
-        }
 
         return path;
     }
@@ -104,24 +108,57 @@ public class Pathfinder : MonoBehaviour
     private void openNode(Node nodeToOpen, Node parent)
     {
         nodeToOpen.parent = parent;
-        openedNodes.Enqueue(nodeToOpen);
+        openedNodes.Add(nodeToOpen);
     }
 
-    private Node visitNode()
+    private Node visitNode(algorithm al)  //Falta hacer return del case por default
     {
-        return openedNodes.Dequeue();
+        Node nodeToReturn;
+
+        switch (al)
+        {
+            case algorithm.Breadth_First:
+
+                nodeToReturn = openedNodes[0];
+
+                openedNodes.Remove(nodeToReturn);
+
+                return nodeToReturn;
+
+            case algorithm.Dijkstra:
+
+                float lowestWeight = float.MaxValue;
+
+                nodeToReturn = openedNodes[0];
+
+                for (int i = 0; i < openedNodes.Count; i++)
+                {
+                    if(openedNodes[i].weight < lowestWeight)
+                    {
+                        lowestWeight = openedNodes[i].weight;
+
+                        nodeToReturn = openedNodes[i];
+                    }
+                }
+
+                openedNodes.Remove(nodeToReturn);
+
+                return nodeToReturn;
+        }
+            
     }
 
     private void openNeighbours(Node nodeToOpenNeighbours)
     {
         for (int i = 0; i < nodeToOpenNeighbours.neighboursList.Count; i++)
         {
-            if (!nodeToOpenNeighbours.neighboursList[i].alreadyVisited && !closedNodes.Contains(nodeToOpenNeighbours.neighboursList[i])) {
+
+            if (!nodeToOpenNeighbours.neighboursList[i].alreadyVisited && !closedNodes.Contains(nodeToOpenNeighbours.neighboursList[i]))
+            {
 
                 openNode(nodeToOpenNeighbours.neighboursList[i], nodeToOpenNeighbours);
-            }           
+            }
         }
-
     }
 
     private bool isTargetNode(Node nodeToCheck)

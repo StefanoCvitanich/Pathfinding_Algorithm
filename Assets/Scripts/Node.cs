@@ -8,13 +8,13 @@ public class Node : MonoBehaviour {
 
 	public List<Node> neighboursList;
 
-	//public Queue<Node> visitedNodesQueue;
-
-	//int row, col;
-
 	public bool alreadyVisited = false;
 
 	public Vector3 pos;
+
+    public float weight, distanceToTarget;
+
+    public GameObject targetNode;
 
 	// Use this for initialization
 	void Start () {
@@ -22,6 +22,8 @@ public class Node : MonoBehaviour {
         pos.x = gameObject.transform.position.x;
         pos.y = gameObject.transform.position.y;
         pos.z = gameObject.transform.position.z;
+
+        distanceToTarget = Mathf.Abs(Vector3.Distance(pos, targetNode.GetComponent<Node>().pos));
 
     }
 
