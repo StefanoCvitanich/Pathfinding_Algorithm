@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using
 
 public enum algorithm {
 
@@ -144,6 +143,12 @@ public class Pathfinder : MonoBehaviour
                 openedNodes.Remove(nodeToReturn);
 
                 return nodeToReturn;
+
+            //case algorithm.A_Star:
+               // return nodeToReturn;
+
+            default:
+                return nodeToReturn = null;
         }
             
     }

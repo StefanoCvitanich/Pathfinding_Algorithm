@@ -14,10 +14,12 @@ public class Node : MonoBehaviour {
 
     public float weight, distanceToTarget;
 
-    public GameObject targetNode;
+    GameObject targetNode;
 
 	// Use this for initialization
 	void Start () {
+
+        targetNode = GameObject.Find("targetNode");
 
         pos.x = gameObject.transform.position.x;
         pos.y = gameObject.transform.position.y;
