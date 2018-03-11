@@ -4,15 +4,22 @@ using UnityEngine;
 
 public class Node : MonoBehaviour {
 
+	//[HideInInspector]
 	public Node parent;
 
 	public List<Node> neighboursList;
 
+	//[HideInInspector]
 	public bool alreadyVisited = false;
 
 	public Vector3 pos;
 
-    public float weight, distanceToTarget;
+	public float weight;
+
+	//[HideInInspector]
+	public float distanceToTarget;
+
+	public float movementCost;
 
     GameObject targetNode;
 
@@ -26,6 +33,10 @@ public class Node : MonoBehaviour {
         pos.z = gameObject.transform.position.z;
 
         distanceToTarget = Mathf.Abs(Vector3.Distance(pos, targetNode.GetComponent<Node>().pos));
+
+		weight = Random.Range (1, 6);
+
+		movementCost = distanceToTarget + weight;
 
     }
 

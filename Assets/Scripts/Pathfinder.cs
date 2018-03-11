@@ -110,7 +110,7 @@ public class Pathfinder : MonoBehaviour
         openedNodes.Add(nodeToOpen);
     }
 
-    private Node visitNode(algorithm al)  //Falta hacer return del case por default
+    private Node visitNode(algorithm al)
     {
         Node nodeToReturn;
 
@@ -122,7 +122,8 @@ public class Pathfinder : MonoBehaviour
 
                 openedNodes.Remove(nodeToReturn);
 
-                return nodeToReturn;
+            return nodeToReturn;
+
 
             case algorithm.Dijkstra:
 
@@ -142,10 +143,28 @@ public class Pathfinder : MonoBehaviour
 
                 openedNodes.Remove(nodeToReturn);
 
-                return nodeToReturn;
+            return nodeToReturn;
 
-            //case algorithm.A_Star:
-               // return nodeToReturn;
+
+			case algorithm.A_Star:
+
+				float lowestCost = float.MaxValue;
+
+				nodeToReturn = openedNodes[0];
+
+				for (int i = 0; i < openedNodes.Count; i++) 
+				{
+					if (openedNodes [i].movementCost < lowestCost) 
+					{
+						lowestCost = openedNodes [i].movementCost;
+
+						nodeToReturn = openedNodes [i];
+					} 
+				}
+
+				openedNodes.Remove(nodeToReturn);
+
+			return nodeToReturn;
 
             default:
                 return nodeToReturn = null;
